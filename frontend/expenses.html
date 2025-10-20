@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expenses - Hermandad</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-emerald-50 min-h-screen">
+  <!-- 🔹 Navbar -->
+  <nav class="bg-white shadow p-4 flex justify-between items-center">
+    <h1 class="text-xl font-semibold text-emerald-600">Hermandad</h1>
+    <div class="space-x-6">
+      <a href="dashboard.html" class="text-gray-700 hover:text-emerald-600">Dashboard</a>
+      <a href="persons.html" class="text-gray-700 hover:text-emerald-600">Persons</a>
+      <a href="incomes.html" class="text-gray-700 hover:text-emerald-600">Incomes</a>
+      <a href="reports.html" class="text-gray-700 hover:text-emerald-600">Reports</a>
+      <button id="logoutBtn" class="bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700">Logout</button>
+    </div>
+  </nav>
+
+  <!-- 🔹 Main -->
+  <main class="p-8">
+    <h2 class="text-2xl font-semibold text-emerald-700 mb-6">Register Expenses</h2>
+
+    <!-- 🔸 Form -->
+    <form id="expenseForm" class="bg-white p-6 shadow-md rounded-xl grid grid-cols-2 gap-4 mb-8">
+      <input id="person_id" placeholder="Person ID" class="border rounded-lg px-3 py-2" required />
+      <input id="amount" type="number" placeholder="Amount" class="border rounded-lg px-3 py-2" required />
+      <input id="date" type="date" class="border rounded-lg px-3 py-2" />
+      <input id="observation" placeholder="Observation (optional)" class="border rounded-lg px-3 py-2 col-span-2" />
+      <button class="bg-emerald-600 text-white py-2 rounded-lg hover:bg-emerald-700 col-span-2">Save</button>
+    </form>
+
+    <!-- 🔸 Table -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="border-b text-emerald-700">
+            <th class="py-2">#</th>
+            <th class="py-2">Person ID</th>
+            <th class="py-2">Amount</th>
+            <th class="py-2">Date</th>
+            <th class="py-2">Observation</th>
+          </tr>
+        </thead>
+        <tbody id="expenseTable"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- 🔹 Scripts -->
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/expenses.js"></script>
+</body>
+</html>

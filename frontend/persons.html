@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personas - Hermandad</title>
+
+    <!-- Seguridad -->
+    <script src="js/auth-guard.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Configuración personalizada de Tailwind -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2e7d32",
+              cream: "#fefcfb",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+
+  <body class="bg-cream min-h-screen flex flex-col animate-fadeIn">
+    <!-- 🔹 Navbar -->
+    <nav
+      class="bg-white shadow-md px-6 py-4 flex justify-between items-center border-b border-gray-100"
+    >
+      <div class="flex items-center space-x-2">
+        <img
+          src="images/logo.png"
+          alt="Hermandad Logo"
+          class="w-9 h-9 rounded-full object-contain"
+        />
+        <h1 class="text-xl font-bold text-primary">Hermandad</h1>
+      </div>
+
+      <div class="space-x-6 text-sm font-medium">
+        <a href="dashboard.html" class="text-gray-700 hover:text-primary transition-colors">Dashboard</a>
+        <a href="incomes.html" class="text-gray-700 hover:text-primary transition-colors">Ingresos</a>
+        <a href="expenses.html" class="text-gray-700 hover:text-primary transition-colors">Egresos</a>
+        <a href="reports.html" class="text-gray-700 hover:text-primary transition-colors">Reportes</a>
+        <button
+          id="logoutBtn"
+          class="bg-primary text-white px-3 py-1 rounded-lg hover:bg-green-700 transition"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    </nav>
+
+    <!-- 🔹 Contenido principal -->
+    <main class="flex-grow px-6 py-8">
+      <h2 class="text-3xl font-semibold text-primary mb-6 text-center">Gestión de Personas</h2>
+
+      <!-- 🔸 Formulario de registro -->
+      <section
+        class="bg-white rounded-2xl p-8 shadow-md border border-gray-100 mb-10 max-w-5xl mx-auto"
+      >
+        <h3 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Registrar Persona</h3>
+
+        <form id="personForm" class="grid md:grid-cols-2 gap-4">
+          <input
+            id="first_name"
+            placeholder="Nombre"
+            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+            required
+          />
+          <input
+            id="last_name"
+            placeholder="Apellido"
+            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+            required
+          />
+          <input
+            id="dni"
+            placeholder="DNI"
+            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+            required
+          />
+          <input
+            id="phone"
+            placeholder="Teléfono"
+            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+          />
+          <input
+            id="address"
+            placeholder="Dirección"
+            class="border border-gray-300 rounded-lg px-3 py-2 md:col-span-2 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+          />
+          <input
+            type="date"
+            id="birth_date"
+            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none"
+          />
+          <button
+            class="bg-primary text-white py-2 rounded-lg hover:bg-green-700 transition-all font-semibold md:col-span-2"
+          >
+            Guardar
+          </button>
+        </form>
+      </section>
+
+      <!-- 🔸 Tabla de registros -->
+      <section
+        class="bg-white rounded-2xl shadow-md border border-gray-100 p-8 max-w-6xl mx-auto"
+      >
+        <h3 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
+          Lista de Personas Registradas
+        </h3>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b bg-emerald-50 text-emerald-700 text-sm uppercase">
+                <th class="py-3 px-4">#</th>
+                <th class="px-4">Nombre completo</th>
+                <th class="px-4">DNI</th>
+                <th class="px-4">Teléfono</th>
+                <th class="px-4">Dirección</th>
+                <th class="px-4">Fecha de registro</th>
+              </tr>
+            </thead>
+            <tbody id="personTable" class="text-gray-700 text-sm"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- 🔹 Footer -->
+    <footer
+      class="text-center text-gray-400 text-sm py-4 border-t border-gray-100 bg-white mt-8"
+    >
+      &copy; 2025 Hermandad del Señor del Santo Sepulcro — Chincha Alta. Todos los derechos reservados.
+    </footer>
+
+    <!-- 🔹 Scripts -->
+    <script type="module" src="js/persons.js"></script>
+
+    <script>
+      // 🚪 Logout rápido
+      document.getElementById("logoutBtn").onclick = () => {
+        sessionStorage.clear();
+        window.location.href = "index.html";
+      };
+    </script>
+
+    <!-- 🔸 Animación -->
+    <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeIn {
+        animation: fadeIn 0.8s ease-in-out;
+      }
+    </style>
+  </body>
+</html>

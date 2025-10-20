@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hermandad - Control Económico</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind Custom Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2e7d32", // verde institucional
+              cream: "#fefcfb",
+            },
+          },
+        },
+      };
+    </script>
+
+    <link rel="icon" href="images/logo.png" />
+  </head>
+
+  <body class="bg-cream min-h-screen flex items-center justify-center">
+    <div
+      class="bg-white shadow-2xl rounded-2xl w-full max-w-md p-8 border border-gray-100 text-center animate-fadeIn"
+    >
+      <!-- 🔹 Logo -->
+      <img
+        src="images/logo.png"
+        alt="Hermandad Logo"
+        class="mx-auto mb-4 w-28 h-28 object-contain drop-shadow-md"
+      />
+
+      <!-- 🔹 Título -->
+      <h1 class="text-3xl font-bold text-primary">Hermandad</h1>
+      <p class="text-gray-500 mt-1 mb-6">Control Económico - Chincha Alta</p>
+
+      <!-- 🔹 Formulario -->
+      <form id="loginForm" class="space-y-5 text-left">
+        <div>
+          <label
+            for="username"
+            class="block text-sm font-medium text-gray-600 mb-1"
+            >Usuario</label
+          >
+          <input
+            id="username"
+            type="text"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            placeholder="Ingresa tu usuario"
+          />
+        </div>
+
+        <div>
+          <label
+            for="password"
+            class="block text-sm font-medium text-gray-600 mb-1"
+            >Contraseña</label
+          >
+          <input
+            id="password"
+            type="password"
+            required
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+            placeholder="Ingresar tu contraseña"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-primary hover:bg-green-700 transition-colors text-white py-2.5 rounded-lg font-medium shadow-md hover:shadow-lg"
+        >
+          Iniciar sesión
+        </button>
+      </form>
+
+      <!-- 🔹 Footer -->
+      <p class="text-center text-gray-400 text-sm mt-6">
+        &copy; 2025 Hermandad del Señor del Santo Sepulcro<br />
+        Chincha Alta - Todos los derechos reservados.
+      </p>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="./js/auth.js"></script>
+
+    <!-- 🔸 Animación -->
+    <style>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(25px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fadeIn {
+        animation: fadeIn 1s ease-out;
+      }
+    </style>
+  </body>
+</html>

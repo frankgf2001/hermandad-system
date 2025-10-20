@@ -1,0 +1,58 @@
+backend/
+│
+├── src/
+│   ├── config/
+│   │   └── db.js                # Configuración del pool MySQL (con dotenv)
+│   │
+│   ├── controllers/
+│   │   ├── authController.js    # Manejo de autenticación (login con SP)
+│   │   ├── personController.js  # Personas (usa sp_person_add y sp_person_list)
+│   │   ├── incomeController.js  # Ingresos (usa sp_income_add, sp_income_list)
+│   │   ├── expenseController.js # Egresos (usa sp_expense_add, sp_expense_list)
+│   │   └── reportController.js  # Resúmenes e informes
+│   │
+│   ├── middleware/
+│   │   └── authMiddleware.js    # JWT + control de roles
+│   │
+│   ├── routes/
+│   │   ├── authRoutes.js        # Rutas /api/auth/login
+│   │   ├── personRoutes.js      # Rutas /api/persons
+│   │   ├── incomeRoutes.js      # Rutas /api/incomes
+│   │   ├── expenseRoutes.js     # Rutas /api/expenses
+│   │   ├── reportRoutes.js      # Rutas /api/reports
+│   │   └── index.js             # Archivo maestro que une todas las rutas
+│   │
+│   └── app.js                   # Configura Express y middlewares globales
+│
+├── server.js                    # Punto de entrada principal (levanta el servidor)
+│
+├── .env                         # Variables de entorno (DB, JWT_SECRET, PORT)
+│
+└── package.json
+
+
+===========================================================================================
+
+frontend/
+│
+├── index.html               # Login principal
+├── dashboard.html           # Panel principal post-login
+├── persons.html             # Gestión de personas
+├── incomes.html             # Gestión de ingresos
+├── expenses.html            # Gestión de egresos
+├── reports.html             # Reportes
+│
+├── css/
+│   └── styles.css           # Estilos personalizados (mínimos)
+│
+├── images/
+│   └── logo.png             # Logo institucional
+│
+└── js/
+    ├── api.js               # Base URL, headers, manejo de respuestas
+    ├── auth.js              # Login y logout (maneja token JWT)
+    ├── auth-guard.js        # Redirección si no hay sesión activa
+    ├── persons.js           # CRUD de personas (usa PersonsAPI)
+    ├── incomes.js           # CRUD de ingresos
+    ├── expenses.js          # CRUD de egresos
+    └── reports.js           # Visualización de reportes
