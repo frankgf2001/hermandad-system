@@ -1,56 +1,81 @@
-// Configuración de Tailwind 
+// ===============================
+// 🎨 Configuración de Tailwind
+// ===============================
 tailwind.config = {
-    theme: {
-        extend: {
-        colors: {
-            primary: "#2e7d32",
-            cream: "#fefcfb",
-        },
-        },
+  theme: {
+    extend: {
+      colors: {
+        primary: "#2e7d32",
+        cream: "#fefcfb",
+      },
     },
+  },
 };
 
-//Seguridad, bienvenida y fecha 
+// ===============================
+// 🔒 Seguridad y bienvenida
+// ===============================
 document.addEventListener("DOMContentLoaded", () => {
-    const username = sessionStorage.getItem("username");
-    const welcomeTitle = document.getElementById("welcomeTitle");
-    const dateElement = document.getElementById("currentDate");
+  const token = sessionStorage.getItem("token");
+  const username = sessionStorage.getItem("username");
+  const welcomeTitle = document.getElementById("welcomeTitle");
+  const dateElement = document.getElementById("currentDate");
 
-    // 🚨 Verificación de sesión
-    if (!sessionStorage.getItem("token")) {
-        window.location.href = "index.html";
-        return;
-    }
+  // 🚨 Validar sesión
+  if (!token) {
+    window.location.replace("index.html");
+    return;
+  }
 
-    // 🕐 Saludo inteligente
-    const hour = new Date().getHours();
-    let greeting = "Bienvenido";
-    if (hour >= 5 && hour < 12) greeting = "Buenos días";
-    else if (hour >= 12 && hour < 19) greeting = "Buenas tardes";
-    else greeting = "Buenas noches";
+  // 🕐 Mensaje de saludo dinámico
+  const hour = new Date().getHours();
+  const greeting =
+    hour < 5
+      ? "Buenas noches"
+      : hour < 12
+      ? "Buenos días"
+      : hour < 19
+      ? "Buenas tardes"
+      : "Buenas noches";
 
-    // 🧑‍💼 Mostrar nombre formateado
-    if (username && welcomeTitle) {
-        const formattedName =
-        username.charAt(0).toUpperCase() + username.slice(1).toLowerCase();
-        welcomeTitle.innerHTML = `
-        ${greeting}, <span class="font-bold">${formattedName}</span> 👋
-        `;
-    } else {
-        welcomeTitle.textContent = "Bienvenido al Panel de Control Económico";
-    }
+  // 🧑‍💼 Mostrar nombre con formato profesional
+  const formattedName =
+    username && username.length > 0
+      ? username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()
+      : "Usuario";
 
-    // 📅 Mostrar fecha actual
+  if (welcomeTitle) {
+    welcomeTitle.innerHTML = `${greeting}, <span class="font-bold">${formattedName}</span> 👋`;
+  }
+
+  // 📅 Mostrar fecha local
+  if (dateElement) {
     const today = new Date();
-    const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
     const formattedDate = today
-        .toLocaleDateString("es-ES", options)
-        .replace(/^./, (s) => s.toUpperCase());
-    dateElement.textContent = formattedDate;
+      .toLocaleDateString("es-ES", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+      .replace(/^./, (s) => s.toUpperCase());
 
-    // 🚪 Logout
-    document.getElementById("logoutBtn").onclick = () => {
-        sessionStorage.clear();
-        window.location.href = "index.html";
-    };
+    dateElement.textContent = formattedDate;
+  }
+
+  // 🚪 Logout seguro
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      sessionStorage.clear();
+      window.location.replace("index.html");
+    });
+  }
+
+  // 🧭 Prevenir regreso con botón “Atrás”
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted && !sessionStorage.getItem("token")) {
+      window.location.replace("index.html");
+    }
+  });
 });

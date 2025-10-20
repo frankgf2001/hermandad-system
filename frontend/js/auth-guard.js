@@ -1,24 +1,26 @@
 // 🔒 auth-guard.js
-// Este script protege las páginas internas y gestiona el logout de sesión.
+// Protege las páginas internas y gestiona el cierre de sesión
 
-// ✅ Verificar sesión al cargar cualquier página protegida
+// ✅ Verificar sesión al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
   const token = sessionStorage.getItem("token");
   if (!token) {
-    window.location.replace("index.html"); // Redirige si no hay sesión
+    window.location.replace("index.html");
   }
 });
 
 // 🚪 Cerrar sesión correctamente
-const logoutBtn = document.getElementById("logoutBtn");
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", () => {
-    sessionStorage.clear();
-    window.location.replace("index.html");
-  });
+function setupLogoutButton() {
+  const logoutBtn = document.getElementById("logoutBtn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      sessionStorage.clear();
+      window.location.replace("index.html");
+    });
+  }
 }
 
-// 🧭 Evitar acceso con botón “Atrás” del navegador
+// 🧭 Evitar que el usuario vuelva con el botón “Atrás” del navegador
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
     const token = sessionStorage.getItem("token");
@@ -27,3 +29,6 @@ window.addEventListener("pageshow", (event) => {
     }
   }
 });
+
+// ✅ Exponer funciones globales
+window.setupLogoutButton = setupLogoutButton;

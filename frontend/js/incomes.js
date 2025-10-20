@@ -1,27 +1,28 @@
 import { API_BASE_URL, getAuthHeaders, handleResponse, logoutIfUnauthorized } from "./api.js";
+import { checkAuth, setupLogoutButton } from "./auth-guard.js";
+
+// ===============================
+// 🔹 Verificar autenticación
+// ===============================
+checkAuth();
+setupLogoutButton();
 
 // ===============================
 // 🔹 Elementos del DOM
 // ===============================
 const form = document.getElementById("incomeForm");
 const incomeTable = document.getElementById("incomeTable");
-const logoutBtn = document.getElementById("logoutBtn");
 
 // ===============================
 // 🔹 Eventos
 // ===============================
-form.addEventListener("submit", async (e) => {
+form?.addEventListener("submit", async (e) => {
   e.preventDefault();
   await saveIncome();
 });
 
 window.addEventListener("DOMContentLoaded", async () => {
   await loadIncomes();
-});
-
-logoutBtn?.addEventListener("click", () => {
-  localStorage.clear();
-  window.location.href = "index.html";
 });
 
 // ===============================
@@ -36,7 +37,7 @@ async function saveIncome() {
   };
 
   if (!incomeData.person_id || !incomeData.amount) {
-    alert("Please complete all required fields.");
+    alert("⚠️ Please complete all required fields.");
     return;
   }
 
@@ -50,7 +51,7 @@ async function saveIncome() {
     await logoutIfUnauthorized(res);
     await handleResponse(res);
 
-    alert("Income registered successfully ✅");
+    alert("✅ Income registered successfully!");
     form.reset();
     await loadIncomes();
   } catch (error) {
@@ -98,7 +99,9 @@ function renderIncomes(incomes) {
   if (!incomes || incomes.length === 0) {
     incomeTable.innerHTML = `
       <tr>
-        <td colspan="5" class="text-center text-gray-400 py-3">No income records found.</td>
+        <td colspan="5" class="text-center text-gray-400 py-3">
+          No income records found.
+        </td>
       </tr>
     `;
     return;
@@ -106,7 +109,7 @@ function renderIncomes(incomes) {
 
   incomes.forEach((inc, index) => {
     const row = `
-      <tr class="border-b hover:bg-emerald-50">
+      <tr class="border-b hover:bg-emerald-50 transition">
         <td class="py-2">${index + 1}</td>
         <td>${inc.person_id || "-"}</td>
         <td class="text-green-700 font-semibold">S/ ${formatNumber(inc.amount)}</td>

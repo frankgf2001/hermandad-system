@@ -5,19 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Hermandad</title>
 
-    <!-- Seguridad -->
-    <script src="js/auth-guard.js"></script>
-
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
+    <link rel="icon" href="images/logo.png" type="image/png" />
   </head>
 
   <body class="bg-cream min-h-screen flex flex-col animate-fadeIn">
     <!-- 🔹 Navbar -->
-    <nav
-      class="bg-white shadow-md px-6 py-4 flex justify-between items-center border-b border-gray-100"
-    >
+    <nav class="bg-white shadow-md px-6 py-4 flex justify-between items-center border-b border-gray-100">
       <div class="flex items-center space-x-2">
         <img
           src="images/logo.png"
@@ -28,26 +23,10 @@
       </div>
 
       <div class="space-x-6 text-sm font-medium">
-        <a
-          href="persons.html"
-          class="text-gray-700 hover:text-primary transition-colors"
-          >Personas</a
-        >
-        <a
-          href="incomes.html"
-          class="text-gray-700 hover:text-primary transition-colors"
-          >Ingresos</a
-        >
-        <a
-          href="expenses.html"
-          class="text-gray-700 hover:text-primary transition-colors"
-          >Egresos</a
-        >
-        <a
-          href="reports.html"
-          class="text-gray-700 hover:text-primary transition-colors"
-          >Reportes</a
-        >
+        <a href="persons.html" class="text-gray-700 hover:text-primary transition-colors">Personas</a>
+        <a href="incomes.html" class="text-gray-700 hover:text-primary transition-colors">Ingresos</a>
+        <a href="expenses.html" class="text-gray-700 hover:text-primary transition-colors">Egresos</a>
+        <a href="reports.html" class="text-gray-700 hover:text-primary transition-colors">Reportes</a>
         <button
           id="logoutBtn"
           class="bg-primary text-white px-3 py-1 rounded-lg hover:bg-green-700 transition"
@@ -59,7 +38,6 @@
 
     <!-- 🔹 Contenido principal -->
     <main class="flex-grow flex flex-col items-center text-center px-4 mt-10">
-      <!-- 👋 Bienvenida profesional -->
       <section class="mb-10">
         <h2 id="welcomeTitle" class="text-3xl font-semibold text-primary mb-2"></h2>
         <p id="currentDate" class="text-gray-500 text-sm"></p>
@@ -69,41 +47,23 @@
       </section>
 
       <!-- 🔹 Tarjetas de acceso rápido -->
-      <div
-        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl"
-      >
-        <a
-          href="persons.html"
-          class="bg-white border border-gray-100 shadow-sm hover:shadow-lg transition rounded-xl p-6 transform hover:-translate-y-1 duration-200"
-        >
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+        <a href="persons.html" class="bg-white border border-gray-100 shadow-sm hover:shadow-lg transition rounded-xl p-6 transform hover:-translate-y-1 duration-200">
           <h3 class="text-lg font-semibold text-primary mb-2">Personas</h3>
           <p class="text-gray-500 text-sm">Registra y gestiona a todos los miembros</p>
         </a>
 
-        <a
-          href="incomes.html"
-          class="bg-white border border-gray-100 shadow-sm hover:shadow-lg transition rounded-xl p-6 transform hover:-translate-y-1 duration-200"
-        >
+        <a href="incomes.html" class="bg-white border border-gray-100 shadow-sm hover:shadow-lg transition rounded-xl p-6 transform hover:-translate-y-1 duration-200">
           <h3 class="text-lg font-semibold text-primary mb-2">Ingresos</h3>
-          <p class="text-gray-500 text-sm">
-            Registre todas las transacciones de ingresos
-          </p>
+          <p class="text-gray-500 text-sm">Registre todas las transacciones de ingresos</p>
         </a>
 
-        <a
-          href="expenses.html"
-          class="bg-white border border-gray-100 shadow-sm hover:shadow-lg transition rounded-xl p-6 transform hover:-translate-y-1 duration-200"
-        >
+        <a href="expenses.html" class="bg-white border border-gray-100 shadow-sm hover:shadow-lg transition rounded-xl p-6 transform hover:-translate-y-1 duration-200">
           <h3 class="text-lg font-semibold text-primary mb-2">Egresos</h3>
-          <p class="text-gray-500 text-sm">
-            Gestione las transacciones salientes de manera eficiente
-          </p>
+          <p class="text-gray-500 text-sm">Gestione las transacciones salientes de manera eficiente</p>
         </a>
 
-        <a
-          href="reports.html"
-          class="bg-white border border-gray-100 shadow-sm hover:shadow-lg transition rounded-xl p-6 transform hover:-translate-y-1 duration-200"
-        >
+        <a href="reports.html" class="bg-white border border-gray-100 shadow-sm hover:shadow-lg transition rounded-xl p-6 transform hover:-translate-y-1 duration-200">
           <h3 class="text-lg font-semibold text-primary mb-2">Reportes</h3>
           <p class="text-gray-500 text-sm">Genera y visualiza informes por fecha</p>
         </a>
@@ -111,13 +71,12 @@
     </main>
 
     <!-- 🔹 Footer -->
-    <footer
-      class="text-center text-gray-400 text-sm py-4 border-t border-gray-100 bg-white"
-    >
+    <footer class="text-center text-gray-400 text-sm py-4 border-t border-gray-100 bg-white">
       &copy; 2025 Hermandad del Señor del Santo Sepulcro — Chincha Alta. Todos los derechos reservados.
     </footer>
-    
-    <!-- Script-->
+
+    <!-- 🔸 Scripts -->
+    <script src="js/auth-guard.js"></script>
     <script src="js/dashboard.js"></script>
 
     <!-- 🔸 Animación -->
