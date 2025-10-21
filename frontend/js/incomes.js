@@ -1,33 +1,34 @@
-import { API_BASE_URL, getAuthHeaders, handleResponse, logoutIfUnauthorized } from "./api.js";
-import { checkAuth, setupLogoutButton } from "./auth-guard.js";
+// ================================================
+// 🔹 Importaciones base
+// ================================================
+import {
+  API_BASE_URL,
+  getAuthHeaders,
+  handleResponse,
+  logoutIfUnauthorized,
+} from "./api.js";
 
-// ===============================
-// 🔹 Verificar autenticación
-// ===============================
-checkAuth();
-setupLogoutButton();
-
-// ===============================
+// ================================================
 // 🔹 Elementos del DOM
-// ===============================
+// ================================================
 const form = document.getElementById("incomeForm");
 const incomeTable = document.getElementById("incomeTable");
 
-// ===============================
-// 🔹 Eventos
-// ===============================
+// ================================================
+// 🔹 Eventos principales
+// ================================================
+window.addEventListener("DOMContentLoaded", async () => {
+  await loadIncomes();
+});
+
 form?.addEventListener("submit", async (e) => {
   e.preventDefault();
   await saveIncome();
 });
 
-window.addEventListener("DOMContentLoaded", async () => {
-  await loadIncomes();
-});
-
-// ===============================
+// ================================================
 // 🔹 Guardar un nuevo ingreso
-// ===============================
+// ================================================
 async function saveIncome() {
   const incomeData = {
     person_id: form.person_id.value.trim(),
@@ -60,9 +61,9 @@ async function saveIncome() {
   }
 }
 
-// ===============================
-// 🔹 Listar todos los ingresos
-// ===============================
+// ================================================
+// 🔹 Cargar lista de ingresos
+// ================================================
 async function loadIncomes() {
   incomeTable.innerHTML = `
     <tr>
@@ -90,9 +91,9 @@ async function loadIncomes() {
   }
 }
 
-// ===============================
-// 🔹 Renderizar tabla
-// ===============================
+// ================================================
+// 🔹 Renderizar tabla de ingresos
+// ================================================
 function renderIncomes(incomes) {
   incomeTable.innerHTML = "";
 
@@ -112,7 +113,9 @@ function renderIncomes(incomes) {
       <tr class="border-b hover:bg-emerald-50 transition">
         <td class="py-2">${index + 1}</td>
         <td>${inc.person_id || "-"}</td>
-        <td class="text-green-700 font-semibold">S/ ${formatNumber(inc.amount)}</td>
+        <td class="text-green-700 font-semibold">
+          S/ ${formatNumber(inc.amount)}
+        </td>
         <td>${formatDate(inc.date)}</td>
         <td>${inc.observation || "-"}</td>
       </tr>
@@ -121,9 +124,9 @@ function renderIncomes(incomes) {
   });
 }
 
-// ===============================
-// 🔹 Utilitarios
-// ===============================
+// ================================================
+// 🔹 Funciones utilitarias
+// ================================================
 function formatNumber(num) {
   return Number(num || 0).toLocaleString("en-US", {
     minimumFractionDigits: 2,
