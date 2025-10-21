@@ -1,48 +1,114 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reports - Hermandad</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-emerald-50 min-h-screen">
-  <nav class="bg-white shadow p-4 flex justify-between items-center">
-    <h1 class="text-xl font-semibold text-emerald-600">Hermandad</h1>
-    <div class="space-x-6">
-      <a href="dashboard.html" class="text-gray-700 hover:text-emerald-600">Dashboard</a>
-      <a href="persons.html" class="text-gray-700 hover:text-emerald-600">Persons</a>
-      <a href="incomes.html" class="text-gray-700 hover:text-emerald-600">Incomes</a>
-      <a href="expenses.html" class="text-gray-700 hover:text-emerald-600">Expenses</a>
-    </div>
-  </nav>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reportes | Hermandad</title>
 
-  <main class="p-8">
-    <h2 class="text-2xl font-semibold text-emerald-700 mb-6">Financial Reports</h2>
+    <!-- ✅ Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <div class="grid grid-cols-4 gap-6 mb-10">
-      <button class="bg-white p-4 shadow rounded-lg text-emerald-700 hover:bg-emerald-100" onclick="loadReport('day')">Daily</button>
-      <button class="bg-white p-4 shadow rounded-lg text-emerald-700 hover:bg-emerald-100" onclick="loadReport('week')">Weekly</button>
-      <button class="bg-white p-4 shadow rounded-lg text-emerald-700 hover:bg-emerald-100" onclick="loadReport('month')">Monthly</button>
-      <button class="bg-white p-4 shadow rounded-lg text-emerald-700 hover:bg-emerald-100" onclick="loadReport('year')">Yearly</button>
-    </div>
+    <!-- ✅ Estilos -->
+    <style>
+      body {
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+      }
 
-    <div id="reportContainer" class="bg-white p-6 rounded-xl shadow-md">
-      <h3 class="text-lg font-semibold text-emerald-600 mb-4">Results</h3>
-      <table class="w-full text-left">
-        <thead>
-          <tr class="border-b text-emerald-700">
-            <th>Period</th>
-            <th>Total Income</th>
-            <th>Total Expense</th>
-            <th>Balance</th>
-          </tr>
-        </thead>
-        <tbody id="reportTable"></tbody>
-      </table>
-    </div>
-  </main>
+      .fade-in {
+        animation: fadeIn 0.3s ease-in-out;
+      }
 
-  <script type="module" src="js/reports.js"></script>
-</body>
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      button {
+        transition: all 0.2s ease-in-out;
+      }
+
+      button:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px #a7f3d0;
+      }
+
+      th {
+        background-color: #ecfdf5;
+      }
+    </style>
+  </head>
+
+  <body class="bg-emerald-50 min-h-screen flex flex-col fade-in">
+    <!-- 🔹 Navbar -->
+    <nav class="bg-white shadow-sm px-6 py-4 flex justify-between items-center border-b border-gray-100 sticky top-0 z-10">
+      <h1 class="text-xl font-semibold text-emerald-700 tracking-tight">Hermandad</h1>
+      <div class="space-x-5 text-sm font-medium">
+        <a href="dashboard.html" class="text-gray-600 hover:text-emerald-600">Inicio</a>
+        <a href="persons.html" class="text-gray-600 hover:text-emerald-600">Personas</a>
+        <a href="incomes.html" class="text-gray-600 hover:text-emerald-600">Ingresos</a>
+        <a href="expenses.html" class="text-gray-600 hover:text-emerald-600">Egresos</a>
+        <button
+          id="logoutBtn"
+          class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-1.5 rounded-lg text-sm font-medium shadow-sm"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    </nav>
+
+    <!-- 🔹 Contenido principal -->
+    <main class="flex-grow px-6 py-8 max-w-5xl mx-auto w-full">
+      <header class="mb-8">
+        <h2 class="text-2xl font-bold text-emerald-700 mb-1">Reportes financieros</h2>
+        <p class="text-gray-500 text-sm">Consulta los ingresos, egresos y balances de la hermandad.</p>
+      </header>
+
+      <!-- 🔸 Selector de reportes -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+        <button class="bg-white border border-gray-100 hover:border-emerald-400 shadow-sm rounded-lg py-3 font-medium text-gray-700 hover:text-emerald-600 transition" onclick="loadReport('day')">
+          Diario
+        </button>
+        <button class="bg-white border border-gray-100 hover:border-emerald-400 shadow-sm rounded-lg py-3 font-medium text-gray-700 hover:text-emerald-600 transition" onclick="loadReport('week')">
+          Semanal
+        </button>
+        <button class="bg-white border border-gray-100 hover:border-emerald-400 shadow-sm rounded-lg py-3 font-medium text-gray-700 hover:text-emerald-600 transition" onclick="loadReport('month')">
+          Mensual
+        </button>
+        <button class="bg-white border border-gray-100 hover:border-emerald-400 shadow-sm rounded-lg py-3 font-medium text-gray-700 hover:text-emerald-600 transition" onclick="loadReport('year')">
+          Anual
+        </button>
+      </div>
+
+      <!-- 🔸 Contenedor del reporte -->
+      <section class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-semibold text-emerald-700">Resultados del reporte</h3>
+          <span id="currentType" class="text-sm text-gray-500">Seleccione un tipo de reporte</span>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg">
+          <table class="w-full text-sm text-left border-collapse">
+            <thead class="border-b text-gray-700">
+              <tr>
+                <th class="py-2 px-3">Periodo</th>
+                <th class="py-2 px-3">Total Ingresos</th>
+                <th class="py-2 px-3">Total Egresos</th>
+                <th class="py-2 px-3">Balance</th>
+              </tr>
+            </thead>
+            <tbody id="reportTable"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/auth-guard.js"></script>
+    <script type="module" src="js/reports.js"></script>
+  </body>
 </html>
