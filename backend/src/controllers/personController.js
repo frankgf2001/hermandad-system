@@ -14,6 +14,20 @@ export const getAllPersons = async (_, res) => {
 };
 
 /**
+ * 👥 Obtener lista de personas de tipo usuario
+ */
+
+export const getPersonUsers = async (req, res) => {
+  try {
+    const [rows] = await pool.query("CALL sp_person_get_users()");
+    res.json(rows[0]); // ✅ Devolvemos el primer conjunto de resultados
+  } catch (error) {
+    console.error("❌ Error al obtener usuarios:", error);
+    res.status(500).json({ message: "Error al obtener usuarios" });
+  }
+};
+
+/**
  * ➕ Crear nueva persona
  */
 export const createPerson = async (req, res) => {

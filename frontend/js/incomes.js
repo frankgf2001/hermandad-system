@@ -1,6 +1,6 @@
-// ================================================
+// ======================================================
 // 🔹 Importaciones base
-// ================================================
+// ======================================================
 import {
   API_BASE_URL,
   getAuthHeaders,
@@ -8,17 +8,18 @@ import {
   logoutIfUnauthorized,
 } from "./api.js";
 
-// ================================================
+// ======================================================
 // 🔹 Elementos del DOM
-// ================================================
+// ======================================================
 const form = document.getElementById("incomeForm");
 const incomeTable = document.getElementById("incomeTable");
 
-// ================================================
-// 🔹 Eventos principales
-// ================================================
-window.addEventListener("DOMContentLoaded", async () => {
-  await loadIncomes();
+// ======================================================
+// 🔹 Inicialización
+// ======================================================
+document.addEventListener("DOMContentLoaded", async () => {
+  showLoading("Cargando ingresos...");
+  await Promise.all([loadIncomes(), loadPersons()]);
 });
 
 form?.addEventListener("submit", async (e) => {
@@ -26,23 +27,20 @@ form?.addEventListener("submit", async (e) => {
   await saveIncome();
 });
 
-// ================================================
-// 🔹 Guardar un nuevo ingreso
-// ================================================
+// ======================================================
+// 🔹 Guardar ingreso
+// ======================================================
 async function saveIncome() {
-  const incomeData = {
-    person_id: form.person_id.value.trim(),
-    amount: parseFloat(form.amount.value),
-    date: form.date.value || new Date().toISOString().split("T")[0],
-    observation: form.observation.value.trim(),
-  };
+  const incomeData = getFormData();
 
-  if (!incomeData.person_id || !incomeData.amount) {
-    alert("⚠️ Please complete all required fields.");
+  if (!isValidIncome(incomeData)) {
+    showAlert("Por favor completa los campos requeridos.", "warning");
     return;
   }
 
   try {
+    showLoading("Guardando ingreso...");
+
     const res = await fetch(`${API_BASE_URL}/incomes`, {
       method: "POST",
       headers: getAuthHeaders(),
@@ -52,25 +50,19 @@ async function saveIncome() {
     await logoutIfUnauthorized(res);
     await handleResponse(res);
 
-    alert("✅ Income registered successfully!");
+    showAlert("Ingreso registrado con éxito.", "success");
     form.reset();
     await loadIncomes();
   } catch (error) {
-    console.error("❌ Error saving income:", error);
-    alert("Error registering income. Please try again.");
+    console.error("Error al guardar el ingreso:", error);
+    showAlert("Error al registrar el ingreso. Intenta nuevamente.", "error");
   }
 }
 
-// ================================================
+// ======================================================
 // 🔹 Cargar lista de ingresos
-// ================================================
+// ======================================================
 async function loadIncomes() {
-  incomeTable.innerHTML = `
-    <tr>
-      <td colspan="5" class="text-center text-gray-400 py-3">Loading...</td>
-    </tr>
-  `;
-
   try {
     const res = await fetch(`${API_BASE_URL}/incomes`, {
       headers: getAuthHeaders(),
@@ -78,57 +70,152 @@ async function loadIncomes() {
 
     await logoutIfUnauthorized(res);
     const data = await handleResponse(res);
+
     renderIncomes(data);
   } catch (error) {
-    console.error("❌ Error loading incomes:", error);
-    incomeTable.innerHTML = `
-      <tr>
-        <td colspan="5" class="text-center text-red-500 py-3">
-          Error loading data.
-        </td>
-      </tr>
-    `;
+    console.error("Error al cargar ingresos:", error);
+    showTableMessage("Error al cargar los datos.", "error");
   }
 }
 
-// ================================================
+// ======================================================
+// 🔹 Cargar lista de personas tipo "usuario"
+// ======================================================
+async function loadPersons() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/persons/users`, {
+      headers: getAuthHeaders(),
+    });
+
+    await logoutIfUnauthorized(res);
+    const data = await handleResponse(res);
+
+    const select = document.getElementById("person_id");
+    select.innerHTML = `<option value="">Seleccione una persona</option>`;
+
+    data.forEach((p) => {
+      const option = document.createElement("option");
+      option.value = p.id;
+      option.textContent = `${p.first_name} ${p.last_name} (${p.dni})`;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Error al cargar personas:", error);
+    showAlert("No se pudo cargar la lista de personas.", "error");
+  }
+}
+
+// ======================================================
 // 🔹 Renderizar tabla de ingresos
-// ================================================
-function renderIncomes(incomes) {
+// ======================================================
+function renderIncomes(incomes = []) {
   incomeTable.innerHTML = "";
 
-  if (!incomes || incomes.length === 0) {
-    incomeTable.innerHTML = `
-      <tr>
-        <td colspan="5" class="text-center text-gray-400 py-3">
-          No income records found.
-        </td>
-      </tr>
-    `;
+  if (incomes.length === 0) {
+    showTableMessage("No hay ingresos registrados aún.");
     return;
   }
 
-  incomes.forEach((inc, index) => {
-    const row = `
+  const rows = incomes
+    .map(
+      (inc, index) => `
       <tr class="border-b hover:bg-emerald-50 transition">
-        <td class="py-2">${index + 1}</td>
-        <td>${inc.person_id || "-"}</td>
-        <td class="text-green-700 font-semibold">
-          S/ ${formatNumber(inc.amount)}
-        </td>
-        <td>${formatDate(inc.date)}</td>
-        <td>${inc.observation || "-"}</td>
+        <td class="py-2 text-gray-700">${index + 1}</td>
+        <td class="text-gray-700">${inc.person_name || "-"}</td>
+        <td class="text-green-700 font-semibold">S/ ${formatNumber(inc.amount)}</td>
+        <td class="text-gray-600">${formatDate(inc.income_date)}</td>
+        <td class="text-gray-600">${inc.income_type || "-"}</td>
+        <td class="text-gray-600">${inc.reference || "-"}</td>
+        <td class="text-gray-500">${inc.notes || "-"}</td>
       </tr>
-    `;
-    incomeTable.insertAdjacentHTML("beforeend", row);
-  });
+    `
+    )
+    .join("");
+
+  incomeTable.insertAdjacentHTML("beforeend", rows);
 }
 
-// ================================================
-// 🔹 Funciones utilitarias
-// ================================================
+// ======================================================
+// 🔹 Utilitarios de formulario y validación
+// ======================================================
+function getFormData() {
+  return {
+    person_id: parseInt(form.person_id.value),
+    amount: parseFloat(form.amount.value),
+    income_type: form.income_type.value.trim(),
+    reference: form.reference.value.trim(),
+    notes: form.notes.value.trim(),
+    date: form.date.value || null,
+  };
+}
+
+function isValidIncome({ person_id, amount }) {
+  return person_id && amount && !isNaN(amount);
+}
+
+// ======================================================
+// 🔹 Funciones UI auxiliares
+// ======================================================
+function showLoading(message = "Cargando...") {
+  incomeTable.innerHTML = `
+    <tr>
+      <td colspan="7" class="text-center text-emerald-600 py-3 animate-pulse">${message}</td>
+    </tr>
+  `;
+}
+
+function showTableMessage(message, type = "info") {
+  const color =
+    type === "error"
+      ? "text-red-500"
+      : type === "success"
+      ? "text-emerald-600"
+      : "text-gray-400";
+
+  incomeTable.innerHTML = `
+    <tr>
+      <td colspan="7" class="text-center ${color} py-3">${message}</td>
+    </tr>
+  `;
+}
+
+function showAlert(message, type = "info") {
+  const color =
+    type === "success"
+      ? "#059669"
+      : type === "error"
+      ? "#dc2626"
+      : "#ca8a04";
+
+  const toast = document.createElement("div");
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: ${color};
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 50;
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => (toast.style.opacity = "1"), 50);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
+// ======================================================
+// 🔹 Utilitarios de formato
+// ======================================================
 function formatNumber(num) {
-  return Number(num || 0).toLocaleString("en-US", {
+  return Number(num || 0).toLocaleString("es-PE", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -136,8 +223,7 @@ function formatNumber(num) {
 
 function formatDate(dateStr) {
   if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
+  return new Date(dateStr).toLocaleDateString("es-PE", {
     day: "2-digit",
     month: "short",
     year: "numeric",

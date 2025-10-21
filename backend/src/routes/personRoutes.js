@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllPersons, createPerson } from "../controllers/personController.js";
+import { getAllPersons, createPerson, getPersonUsers } from "../controllers/personController.js";
 import { authenticateToken, authorizeRoles } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -9,5 +9,8 @@ router.get("/", authenticateToken, getAllPersons);
 
 // ➕ Crear nueva persona (solo roles permitidos)
 router.post("/", authenticateToken, authorizeRoles("Administrator", "Treasurer"), createPerson);
+
+// ✅ Obtener personas de tipo usuario
+router.get("/users", authenticateToken, getPersonUsers);
 
 export default router;
