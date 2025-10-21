@@ -1,74 +1,71 @@
-import { API_BASE_URL, getAuthHeaders, handleResponse, logoutIfUnauthorized } from "./api.js";
+import {
+  API_BASE_URL,
+  getAuthHeaders,
+  handleResponse,
+  logoutIfUnauthorized,
+} from "./api.js";
 
 // ===============================
 // 🔹 Elementos del DOM
 // ===============================
 const form = document.getElementById("expenseForm");
 const expenseTable = document.getElementById("expenseTable");
-const logoutBtn = document.getElementById("logoutBtn");
+const refreshBtn = document.getElementById("refreshBtn");
 
 // ===============================
-// 🔹 Eventos
+// 🔹 Inicialización
 // ===============================
-form.addEventListener("submit", async (e) => {
+document.addEventListener("DOMContentLoaded", async () => {
+  showLoading("Cargando egresos...");
+  await Promise.all([loadExpenses(), loadPersons()]);
+});
+
+refreshBtn?.addEventListener("click", async () => {
+  showLoading("Actualizando...");
+  await loadExpenses();
+});
+
+form?.addEventListener("submit", async (e) => {
   e.preventDefault();
   await saveExpense();
 });
 
-window.addEventListener("DOMContentLoaded", async () => {
-  await loadExpenses();
-});
-
-logoutBtn?.addEventListener("click", () => {
-  localStorage.clear();
-  window.location.href = "index.html";
-});
-
 // ===============================
-// 🔹 Guardar un nuevo gasto
+// 🔹 Guardar egreso
 // ===============================
 async function saveExpense() {
-  const expenseData = {
-    person_id: form.person_id.value.trim(),
-    amount: parseFloat(form.amount.value),
-    date: form.date.value || new Date().toISOString().split("T")[0],
-    observation: form.observation.value.trim(),
-  };
+  const data = getFormData();
 
-  if (!expenseData.person_id || !expenseData.amount) {
-    alert("Please complete all required fields.");
+  if (!data.person_id || !data.amount) {
+    showAlert("Por favor complete los campos requeridos.", "warning");
     return;
   }
 
   try {
+    showLoading("Guardando egreso...");
+
     const res = await fetch(`${API_BASE_URL}/expenses`, {
       method: "POST",
       headers: getAuthHeaders(),
-      body: JSON.stringify(expenseData),
+      body: JSON.stringify(data),
     });
 
     await logoutIfUnauthorized(res);
     await handleResponse(res);
 
-    alert("Expense registered successfully ✅");
+    showAlert("✅ Egreso registrado con éxito.", "success");
     form.reset();
     await loadExpenses();
   } catch (error) {
-    console.error("❌ Error saving expense:", error);
-    alert("Error registering expense. Please try again.");
+    console.error("❌ Error al guardar egreso:", error);
+    showAlert("Error al registrar el egreso. Intente nuevamente.", "error");
   }
 }
 
 // ===============================
-// 🔹 Listar todos los gastos
+// 🔹 Cargar egresos
 // ===============================
 async function loadExpenses() {
-  expenseTable.innerHTML = `
-    <tr>
-      <td colspan="5" class="text-center text-gray-400 py-3">Loading...</td>
-    </tr>
-  `;
-
   try {
     const res = await fetch(`${API_BASE_URL}/expenses`, {
       headers: getAuthHeaders(),
@@ -76,53 +73,137 @@ async function loadExpenses() {
 
     await logoutIfUnauthorized(res);
     const data = await handleResponse(res);
+
     renderExpenses(data);
   } catch (error) {
-    console.error("❌ Error loading expenses:", error);
-    expenseTable.innerHTML = `
-      <tr>
-        <td colspan="5" class="text-center text-red-500 py-3">
-          Error loading data.
-        </td>
-      </tr>
-    `;
+    console.error("❌ Error al cargar egresos:", error);
+    showTableMessage("Error al cargar los datos.", "error");
+  }
+}
+
+// ===============================
+// 🔹 Cargar personas tipo "usuario"
+// ===============================
+async function loadPersons() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/persons/users`, {
+      headers: getAuthHeaders(),
+    });
+
+    await logoutIfUnauthorized(res);
+    const data = await handleResponse(res);
+
+    const select = document.getElementById("person_id");
+    select.innerHTML = `<option value="">Seleccione una persona</option>`;
+
+    data.forEach((p) => {
+      const option = document.createElement("option");
+      option.value = p.id;
+      option.textContent = `${p.first_name} ${p.last_name} (${p.dni})`;
+      select.appendChild(option);
+    });
+  } catch (error) {
+    console.error("❌ Error al cargar personas:", error);
+    showAlert("No se pudo cargar la lista de personas.", "error");
   }
 }
 
 // ===============================
 // 🔹 Renderizar tabla
 // ===============================
-function renderExpenses(expenses) {
+function renderExpenses(expenses = []) {
   expenseTable.innerHTML = "";
 
-  if (!expenses || expenses.length === 0) {
-    expenseTable.innerHTML = `
-      <tr>
-        <td colspan="5" class="text-center text-gray-400 py-3">No expense records found.</td>
-      </tr>
-    `;
+  if (expenses.length === 0) {
+    showTableMessage("No hay egresos registrados aún.");
     return;
   }
 
-  expenses.forEach((exp, index) => {
-    const row = `
-      <tr class="border-b hover:bg-red-50">
-        <td class="py-2">${index + 1}</td>
-        <td>${exp.person_id || "-"}</td>
-        <td class="text-red-700 font-semibold">S/ ${formatNumber(exp.amount)}</td>
-        <td>${formatDate(exp.date)}</td>
-        <td>${exp.observation || "-"}</td>
-      </tr>
-    `;
-    expenseTable.insertAdjacentHTML("beforeend", row);
-  });
+  const rows = expenses
+    .map(
+      (exp, i) => `
+        <tr class="hover:bg-red-50 transition">
+          <td class="py-2 px-3 text-gray-600">${i + 1}</td>
+          <td class="py-2 px-3">${exp.person_name}</td>
+          <td class="py-2 px-3 text-red-700 font-semibold">S/ ${formatNumber(exp.amount)}</td>
+          <td class="py-2 px-3 text-gray-600">${formatDate(exp.expense_date)}</td>
+          <td class="py-2 px-3 text-gray-600">${exp.expense_type || "-"}</td>
+          <td class="py-2 px-3 text-gray-500">${exp.description || "-"}</td>
+        </tr>
+      `
+    )
+    .join("");
+
+  expenseTable.innerHTML = rows;
 }
 
 // ===============================
 // 🔹 Utilitarios
 // ===============================
+function getFormData() {
+  return {
+    person_id: parseInt(form.person_id.value),
+    amount: parseFloat(form.amount.value),
+    expense_type: form.expense_type.value.trim(),
+    description: form.description.value.trim(),
+    date: form.date.value || new Date().toISOString().split("T")[0],
+  };
+}
+
+function showLoading(message) {
+  expenseTable.innerHTML = `
+    <tr>
+      <td colspan="6" class="text-center text-red-600 py-3 animate-pulse">${message}</td>
+    </tr>`;
+}
+
+function showTableMessage(message, type = "info") {
+  const color =
+    type === "error"
+      ? "text-red-500"
+      : type === "success"
+      ? "text-red-600"
+      : "text-gray-400";
+
+  expenseTable.innerHTML = `
+    <tr>
+      <td colspan="6" class="text-center ${color} py-3">${message}</td>
+    </tr>`;
+}
+
+function showAlert(message, type = "info") {
+  const colors = {
+    success: "#16a34a",
+    error: "#b91c1c",
+    warning: "#ca8a04",
+  };
+
+  const toast = document.createElement("div");
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: ${colors[type] || "#dc2626"};
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 50;
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => (toast.style.opacity = "1"), 50);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 300);
+  }, 2500);
+}
+
 function formatNumber(num) {
-  return Number(num || 0).toLocaleString("en-US", {
+  return Number(num || 0).toLocaleString("es-PE", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -130,8 +211,7 @@ function formatNumber(num) {
 
 function formatDate(dateStr) {
   if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
+  return new Date(dateStr).toLocaleDateString("es-PE", {
     day: "2-digit",
     month: "short",
     year: "numeric",

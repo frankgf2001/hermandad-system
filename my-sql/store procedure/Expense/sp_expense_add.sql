@@ -1,11 +1,12 @@
 USE hermandad_db;
-DELIMITER //
+DROP PROCEDURE IF EXISTS sp_expense_add;
+DELIMITER $$
 
 CREATE PROCEDURE sp_expense_add (
     IN p_person_id INT,
     IN p_amount DECIMAL(10,2),
-    IN p_description VARCHAR(255),
-    IN p_date DATE,
+    IN p_description TEXT,
+    IN p_expense_date DATE,
     IN p_created_by VARCHAR(100)
 )
 BEGIN
@@ -22,13 +23,13 @@ BEGIN
     END IF;
 
     -- Registrar el gasto
-    INSERT INTO expenses (person_id, amount, description, date, created_by, created_at)
-    VALUES (p_person_id, p_amount, TRIM(p_description), p_date, p_created_by, NOW());
+    INSERT INTO expenses (person_id, amount, description, expense_date, created_by, created_at)
+    VALUES (p_person_id, p_amount, TRIM(p_description), p_expense_date, p_created_by, NOW());
 
-    -- Actualizar estado de cuenta (balance)
+    -- Actualizar estado de cuenta (si existe)
     UPDATE account_status
     SET total_expense = total_expense + p_amount,
-        updated_at = NOW()
+        last_update = NOW()
     WHERE person_id = p_person_id;
 
     -- Confirmar respuesta
@@ -37,8 +38,8 @@ BEGIN
         p_person_id AS person_id,
         p_amount AS amount,
         p_description AS description,
-        p_date AS expense_date,
+        p_expense_date AS expense_date,
         NOW() AS created_at;
-END //
+END$$
 
 DELIMITER ;
