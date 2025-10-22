@@ -1,30 +1,51 @@
 USE hermandad_db;
+DROP PROCEDURE IF EXISTS sp_report_yearly;
 DELIMITER $$
 
--- ===========================================================
--- 📈 SP: Reporte anual
--- ===========================================================
-DROP PROCEDURE IF EXISTS sp_report_yearly $$
 CREATE PROCEDURE sp_report_yearly()
 BEGIN
-  SELECT 
-    YEAR(income_date) AS year,
-    SUM(amount) AS total_income,
-    0 AS total_expense
-  FROM incomes
-  WHERE is_deleted = 0
-  GROUP BY YEAR(income_date)
+    /*
+      Reporte anual de ingresos y egresos
+      Compatible con ONLY_FULL_GROUP_BY
+      y flexible con columnas de fecha en 'expenses'
+    */
 
-  UNION ALL
+    SELECT 
+        year_data.year_no AS period,
+        SUM(year_data.total_income) AS total_income,
+        SUM(year_data.total_expense) AS total_expense
+    FROM (
+        -- Subconsulta con agrupación interna
+        SELECT 
+            YEAR(i_date) AS year_no,
+            MIN(i_date) AS i_date,
+            SUM(total_income) AS total_income,
+            SUM(total_expense) AS total_expense
+        FROM (
+            -- Ingresos
+            SELECT 
+                MIN(i.income_date) AS i_date,
+                SUM(i.amount) AS total_income,
+                0 AS total_expense
+            FROM incomes i
+            WHERE i.is_deleted = 0
+            GROUP BY YEAR(i.income_date)
 
-  SELECT 
-    YEAR(expense_date) AS year,
-    0 AS total_income,
-    SUM(amount) AS total_expense
-  FROM expenses
-  WHERE is_deleted = 0
-  GROUP BY YEAR(expense_date)
-  ORDER BY year ASC;
+            UNION ALL
+
+            -- Egresos
+            SELECT 
+                MIN(COALESCE(e.expense_date, e.created_at)) AS i_date,
+                0 AS total_income,
+                SUM(e.amount) AS total_expense
+            FROM expenses e
+            WHERE e.is_deleted = 0
+            GROUP BY YEAR(COALESCE(e.expense_date, e.created_at))
+        ) AS base_data
+        GROUP BY YEAR(i_date)
+    ) AS year_data
+    GROUP BY year_data.year_no
+    ORDER BY year_data.year_no DESC;
 END$$
 
 DELIMITER ;

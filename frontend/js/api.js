@@ -8,7 +8,6 @@ export const API_BASE_URL = "http://localhost:3000/api"; // Cambia al desplegar
 // ================================================
 export function getAuthHeaders() {
   const token = sessionStorage.getItem("token");
-  console.log(token); 
   return {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
