@@ -102,3 +102,10 @@ export const ReportsAPI = {
   getMonthly: () => request("/reports/month"),
   getYearly: () => request("/reports/year"),
 };
+
+// ================================================
+// 🔹 ROLES
+// ================================================
+export const RolesAPI = {
+  getAll: () => request("/roles"), // Usa tu helper 'request' ya existente
+};

@@ -10,7 +10,7 @@ router.get("/", authenticateToken, getAllPersons);
 // ➕ Crear nueva persona (solo roles permitidos)
 router.post("/", authenticateToken, authorizeRoles("Administrator", "Treasurer"), createPerson);
 
-// ✅ Obtener personas de tipo usuario
+// 👥 Obtener lista de usuarios asociados
 router.get("/users", authenticateToken, getPersonUsers);
 
 export default router;
