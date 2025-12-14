@@ -1,189 +1,194 @@
-import { API_BASE_URL, getAuthHeaders, handleResponse, logoutIfUnauthorized } from "./api.js";
+import { PersonsAPI, RolesAPI, logoutIfUnauthorized, ExportAPI } from "../js/api.js";
+import { showAlert, showModal, formatDate, toggleFormState } from "../utils/ui.js";
 
 const form = document.getElementById("personForm");
 const tableBody = document.getElementById("personTable");
+const submitBtn = document.getElementById("submitBtn");
+const userTypeSelect = document.getElementById("user_type");
 
-// =========================
+// ================================
 // 🔹 Inicialización
-// =========================
+// ================================
 document.addEventListener("DOMContentLoaded", async () => {
+  await loadRoles();
   await loadPersons();
 });
 
-// =========================
+// ================================
+// 🔹 Cargar roles
+// ================================
+async function loadRoles() {
+  const select = document.getElementById("user_type");
+  select.innerHTML = `<option value="">Cargando roles...</option>`;
+
+  try {
+    const roles = await RolesAPI.getAll();
+
+    // 🔍 Verifica que la API realmente devuelva un arreglo
+    if (!Array.isArray(roles) || roles.length === 0) {
+      select.innerHTML = `<option value="">No hay roles disponibles</option>`;
+      console.warn("⚠️ No se recibieron roles desde el backend:", roles);
+      return;
+    }
+
+    // ✅ Poblamos el select con los datos correctos
+    select.innerHTML = `<option value="">Seleccione tipo de usuario</option>`;
+    roles.forEach((r) => {
+      const opt = document.createElement("option");
+      opt.value = r.id; // ← el ID numérico del rol
+      opt.textContent = r.role_name; // ← el nombre legible
+      select.appendChild(opt);
+    });
+  } catch (error) {
+    console.error("❌ Error al cargar roles:", error);
+    showAlert("Error al cargar tipos de usuario.", "error");
+    select.innerHTML = `<option value="">Error al cargar roles</option>`;
+  }
+}
+
+// ================================
 // 🔹 Cargar personas
-// =========================
+// ================================
 async function loadPersons() {
   try {
     tableBody.innerHTML = `
       <tr>
-        <td colspan="6" class="text-center py-6 text-emerald-600 animate-pulse">
+        <td colspan="7" class="text-center py-6 text-emerald-600 animate-pulse">
           Cargando registros...
         </td>
       </tr>
     `;
 
-    const res = await fetch(`${API_BASE_URL}/persons`, {
-      headers: getAuthHeaders(),
-    });
+    const res = await PersonsAPI.getAll();
 
-    await logoutIfUnauthorized(res);
-    const data = await handleResponse(res);
-    renderTable(data);
+    // 🔹 Soporta tanto respuesta directa (array) como objeto con "persons"
+    const persons = Array.isArray(res) ? res : res.persons ?? [];
+
+    renderTable(persons);
   } catch (error) {
     console.error("❌ Error al cargar personas:", error);
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="6" class="text-center text-red-500 py-4">
-          Error al cargar datos. Intente nuevamente.
-        </td>
-      </tr>
-    `;
+    showAlert("Error al cargar personas.", "error");
   }
 }
 
-// =========================
+// ================================
 // 🔹 Renderizar tabla
-// =========================
+// ================================
 function renderTable(persons) {
-  tableBody.innerHTML = "";
 
+  console.log(persons);
+
+  tableBody.innerHTML = "";
   if (!persons || persons.length === 0) {
     tableBody.innerHTML = `
-      <tr>
-        <td colspan="6" class="text-center text-gray-400 py-5 italic">
-          No hay registros de personas disponibles.
-        </td>
-      </tr>
-    `;
+      <tr><td colspan="7" class="text-center text-gray-400 py-5 italic">
+        No hay registros disponibles.
+      </td></tr>`;
     return;
   }
 
-  persons.forEach((p, index) => {
-    const row = `
-      <tr class="border-b hover:bg-emerald-50 transition-colors duration-150">
-        <td class="py-2 text-sm text-gray-700">${index + 1}</td>
-        <td class="text-gray-800">${sanitize(p.first_name)} ${sanitize(p.last_name)}</td>
-        <td>${p.dni || "-"}</td>
-        <td>${p.phone || "-"}</td>
-        <td>${p.address || "-"}</td>
-        <td class="text-sm text-gray-500">${formatDate(p.created_at)}</td>
+  persons.forEach((p, i) => {
+    tableBody.insertAdjacentHTML(
+      "beforeend",
+      `
+      <tr class="border-b hover:bg-emerald-50 transition duration-150">
+        <td class="py-2 px-3">${i + 1}</td>
+        <td>${p.full_name ?? ""}</td>
+        <td>${p.dni ?? "-"}</td>
+        <td>${p.phone ?? "-"}</td>
+        <td>${p.address ?? "-"}</td>
+        <td>${p.role_name ?? "-"}</td>
+        <td>${formatDate(p.created_at)}</td>
       </tr>
-    `;
-    tableBody.insertAdjacentHTML("beforeend", row);
+      `
+    );
   });
 }
 
-// =========================
-// 🔹 Guardar nueva persona
-// =========================
-form?.addEventListener("submit", async (e) => {
+// ================================
+// 🔹 Crear persona
+// ================================
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const firstName = form.first_name.value.trim();
-  const lastName = form.last_name.value.trim();
-
-  if (!firstName || !lastName) {
-    showAlert("Por favor ingrese nombre y apellido.", "warning");
-    return;
-  }
-
-  const newPerson = {
-    first_name: firstName,
-    last_name: lastName,
-    dni: form.dni.value.trim() || null,
+  const person = {
+    first_name: form.first_name.value.trim(),
+    last_name: form.last_name.value.trim(),
+    dni: form.dni.value.trim(),
     phone: form.phone.value.trim() || null,
     address: form.address.value.trim() || null,
     birth_date: form.birth_date.value || null,
+    role_id: userTypeSelect.value,
   };
 
+  if (!person.first_name || !person.last_name || !person.dni || !person.role_id) {
+    showAlert("Por favor complete todos los campos requeridos.", "warning");
+    return;
+  }
+
   try {
-    toggleFormState(true);
+    toggleFormState(form, true);
+    submitBtn.textContent = "Guardando...";
 
-    const res = await fetch(`${API_BASE_URL}/persons`, {
-      method: "POST",
-      headers: getAuthHeaders(),
-      body: JSON.stringify(newPerson),
-    });
+    const res = await PersonsAPI.create(person);
+    showAlert("Persona registrada exitosamente.", "success");
 
-    await logoutIfUnauthorized(res);
-    await handleResponse(res);
+    const html = `
+      <p><strong>Nombre:</strong> ${res.person.full_name}</p>
+      <p><strong>Usuario:</strong> ${res.person.username}</p>
+      <p><strong>Rol:</strong> ${res.person.role_name}</p>
+      <p><strong>Teléfono:</strong> ${res.person.phone || "-"}</p>
+      <p><strong>Dirección:</strong> ${res.person.address || "-"}</p>
+      <p><strong>Fecha de registro:</strong> ${formatDate(res.person.created_at)}</p>
+      <hr class="my-3">
+      <p class="text-sm text-gray-500">
+        La contraseña inicial es igual al DNI del usuario.
+      </p>
+    `;
+    showModal("Persona registrada correctamente", html);
 
-    showAlert("✅ Persona registrada exitosamente.", "success");
     form.reset();
     await loadPersons();
-  } catch (error) {
-    console.error("❌ Error creando persona:", error);
-    showAlert("Error al guardar. Intente nuevamente.", "error");
+  } catch (err) {
+    console.error("❌ Error creando persona:", err);
+    if (err.message.includes("401")) logoutIfUnauthorized({ status: 401 });
+    showAlert(err.message || "Error al guardar persona.", "error");
   } finally {
-    toggleFormState(false);
+    toggleFormState(form, false);
+    submitBtn.textContent = "Guardar";
   }
 });
 
-// =========================
-// 🔹 Utilitarios visuales
-// =========================
-function showAlert(message, type = "info") {
-  let alertBox = document.getElementById("alertBox");
-  if (!alertBox) {
-    alertBox = document.createElement("div");
-    alertBox.id = "alertBox";
-    document.body.appendChild(alertBox);
+// ================================
+// 🔹 Logout
+// ================================
+document.getElementById("logoutBtn").onclick = () => {
+  sessionStorage.clear();
+  window.location.href = "index.html";
+};
+
+document.getElementById("btnExportExcel")?.addEventListener("click", async () => {
+  try {
+    const res = await ExportAPI.getExportPerson();
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    // Nombre del archivo (si viene en header)
+    const disposition = res.headers.get("Content-Disposition") || "";
+    const match = disposition.match(/filename="(.+)"/);
+    const fileName = match?.[1] || "reporte.xlsx";
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error("❌ Error export:", e);
+    alert("No se pudo descargar el Excel: " + e.message);
   }
-
-  alertBox.className = `
-    fixed top-6 left-1/2 transform -translate-x-1/2
-    px-6 py-3 rounded-lg shadow-lg font-medium text-white z-50
-    transition-all duration-500 ease-in-out
-    ${getAlertColor(type)}
-  `;
-  alertBox.textContent = message;
-
-  setTimeout(() => {
-    alertBox.style.opacity = "0";
-    setTimeout(() => alertBox.remove(), 500);
-  }, 3000);
-}
-
-function getAlertColor(type) {
-  switch (type) {
-    case "success":
-      return "bg-emerald-600";
-    case "error":
-      return "bg-red-600";
-    case "warning":
-      return "bg-yellow-500 text-gray-900";
-    default:
-      return "bg-gray-700";
-  }
-}
-
-// =========================
-// 🔹 Utilitarios funcionales
-// =========================
-function formatDate(dateStr) {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("es-ES", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function sanitize(str) {
-  if (!str) return "";
-  return str.replace(/[&<>"']/g, (char) =>
-    ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;",
-    }[char])
-  );
-}
-
-function toggleFormState(disabled) {
-  [...form.elements].forEach((el) => (el.disabled = disabled));
-}
+});
