@@ -1,0 +1,6 @@
+Backend:
+npm run dev -> Ejecutar Backend
+npm i exceljs -> Intalar paquete para Excel
+
+Frontend:
+python -m http.server 8080 -> Ejecutar Frontend

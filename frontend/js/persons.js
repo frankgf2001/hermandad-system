@@ -1,4 +1,4 @@
-import { PersonsAPI, RolesAPI, logoutIfUnauthorized } from "../js/api.js";
+import { PersonsAPI, RolesAPI, logoutIfUnauthorized, ExportAPI } from "../js/api.js";
 import { showAlert, showModal, formatDate, toggleFormState } from "../utils/ui.js";
 
 const form = document.getElementById("personForm");
@@ -70,7 +70,6 @@ async function loadPersons() {
     showAlert("Error al cargar personas.", "error");
   }
 }
-
 
 // ================================
 // 🔹 Renderizar tabla
@@ -167,3 +166,29 @@ document.getElementById("logoutBtn").onclick = () => {
   sessionStorage.clear();
   window.location.href = "index.html";
 };
+
+document.getElementById("btnExportExcel")?.addEventListener("click", async () => {
+  try {
+    const res = await ExportAPI.getExportPerson();
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    // Nombre del archivo (si viene en header)
+    const disposition = res.headers.get("Content-Disposition") || "";
+    const match = disposition.match(/filename="(.+)"/);
+    const fileName = match?.[1] || "reporte.xlsx";
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (e) {
+    console.error("❌ Error export:", e);
+    alert("No se pudo descargar el Excel: " + e.message);
+  }
+});

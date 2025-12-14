@@ -8,6 +8,7 @@ import incomeRoutes from "./incomeRoutes.js";
 import expenseRoutes from "./expenseRoutes.js";
 import reportRoutes from "./reportRoutes.js";
 import roleRoutes from "./roleRoutes.js";
+import exportRoutes from "./exportRoutes.js";
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/incomes", incomeRoutes);
 router.use("/expenses", expenseRoutes);
 router.use("/reports", reportRoutes);
 router.use("/roles", roleRoutes);
+router.use("/export", exportRoutes);
 
 export default router;

@@ -31,6 +31,22 @@ async function request(endpoint, method = "GET", data = null) {
   return handleResponse(response);
 }
 
+async function requestExcel(endpoint, method = "GET") {
+  const res = await fetch(`${API_BASE_URL}/${endpoint}`, {
+    method: method,
+    headers: getAuthHeaders(),
+  });
+
+  //const res = await ExportAPI.getExportPerson();
+  
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+
+  return res;
+}
+
 // ================================================
 // 🔹 Universal response handler (used by auth.js)
 // ================================================
@@ -108,4 +124,12 @@ export const ReportsAPI = {
 // ================================================
 export const RolesAPI = {
   getAll: () => request("/roles"), // Usa tu helper 'request' ya existente
+};
+
+
+// ================================================
+// 🔹 EXPORT
+// ================================================
+export const ExportAPI = {
+  getExportPerson: () => requestExcel("/export/persons"), // Usa tu helper 'request' ya existente
 };
