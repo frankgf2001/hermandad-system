@@ -87,9 +87,30 @@
 
       <!-- 🔸 Contenedor del reporte -->
       <section class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold text-emerald-700">Resultados del reporte</h3>
-          <span id="currentType" class="text-sm text-gray-500">Seleccione un tipo de reporte</span>
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-xl font-semibold text-emerald-700">
+              Resultados del reporte
+            </h3>
+            <p id="currentType" class="text-sm text-gray-500">
+              Seleccione un tipo de reporte
+            </p>
+          </div>
+
+          <button
+            id="btnExportExcel"
+            class="inline-flex items-center gap-2 bg-emerald-600 text-white
+                  px-4 py-2 rounded-lg text-sm font-medium
+                  hover:bg-emerald-700 transition shadow-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3M4 6h16" />
+            </svg>
+            Exportar Excel
+          </button>
         </div>
 
         <div class="overflow-x-auto rounded-lg">

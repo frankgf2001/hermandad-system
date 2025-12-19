@@ -31,14 +31,16 @@ async function request(endpoint, method = "GET", data = null) {
   return handleResponse(response);
 }
 
-async function requestExcel(endpoint, method = "GET") {
-  const res = await fetch(`${API_BASE_URL}/${endpoint}`, {
-    method: method,
+async function requestExcel(endpoint, method = "GET", data = null) {
+  const options = {
+    method,
     headers: getAuthHeaders(),
-  });
+  };
 
-  //const res = await ExportAPI.getExportPerson();
-  
+  if (data) options.body = JSON.stringify(data);
+
+  const res = await fetch(`${API_BASE_URL}/${endpoint}`, options);
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message || `HTTP ${res.status}`);
@@ -134,4 +136,5 @@ export const ExportAPI = {
   getExportPerson: () => requestExcel("/export/persons"),
   getExportExpense: () => requestExcel("/export/expenses"),
   getExportIncome: () => requestExcel("/export/incomes"),
+  getExportReport: (data) => requestExcel("/export/report", "POST", data),
 };

@@ -1,35 +1,37 @@
-import { API_BASE_URL, getAuthHeaders, handleResponse, logoutIfUnauthorized } from "./api.js";
+import { API_BASE_URL, getAuthHeaders, handleResponse, logoutIfUnauthorized, ExportAPI } from "./api.js";
+import { excelFormat } from "../utils/excelUtil.js"
 
 const reportTable = document.getElementById("reportTable");
 const currentTypeLabel = document.getElementById("currentType");
 
+const endpoints = {
+  day: "daily",
+  week: "weekly",
+  month: "monthly",
+  year: "yearly",
+};
+
+const reportNames = {
+  day: "diario",
+  week: "semanal",
+  month: "mensual",
+  year: "anual",
+};
+
+let typeReport = "";
 // ===================================================
 // 🔹 Cargar reporte por tipo
 // ===================================================
 window.loadReport = async function (type) {
   // Mapeo entre botones del front y endpoints reales del backend
-  const endpoints = {
-    day: "daily",
-    week: "weekly",
-    month: "monthly",
-    year: "yearly",
-  };
-
-  const endpoint = endpoints[type] || "monthly";
-
-  const reportNames = {
-    day: "diario",
-    week: "semanal",
-    month: "mensual",
-    year: "anual",
-  };
+  typeReport = type;
 
   // Actualiza etiqueta del tipo de reporte
   currentTypeLabel.textContent = `Generando reporte ${reportNames[type] || ""}...`;
   showLoading(`Cargando reporte ${reportNames[type]}...`);
   
   try {
-    const res = await fetch(`${API_BASE_URL}/reports/${endpoint}`, {
+    const res = await fetch(`${API_BASE_URL}/reports/${endpoints[type] || "monthly"}`, {
       headers: getAuthHeaders(),
     });
 
@@ -46,6 +48,24 @@ window.loadReport = async function (type) {
     showTableMessage("Error al cargar los datos.", "error");
   }
 };
+
+document.getElementById("btnExportExcel")?.addEventListener("click", async () => {
+  try {
+    if(typeReport == ""){
+      alert("Debe seleccionar un tipo de reporte");
+      return;
+    }
+
+    const data = {
+      typeReport: endpoints[typeReport]
+    }
+    const res = await ExportAPI.getExportReport(data);
+    excelFormat(res, `Reporte ${reportNames[typeReport]}`);
+  } catch (e) {
+    console.error("❌ Error export:", e);
+    alert("No se pudo descargar el Excel: " + e.message);
+  }
+});
 
 // ===================================================
 // 🔹 Renderizar tabla de resultados
