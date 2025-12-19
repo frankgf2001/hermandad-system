@@ -1,5 +1,6 @@
 import { PersonsAPI, RolesAPI, logoutIfUnauthorized, ExportAPI } from "../js/api.js";
 import { showAlert, showModal, formatDate, toggleFormState } from "../utils/ui.js";
+import { excelFormat } from "../utils/excelUtil.js"
 
 const form = document.getElementById("personForm");
 const tableBody = document.getElementById("personTable");
@@ -74,16 +75,16 @@ async function loadPersons() {
 // ================================
 // 🔹 Renderizar tabla
 // ================================
-function renderTable(persons) {
-
-  console.log(persons);
-
+function renderTable(persons = []) {
   tableBody.innerHTML = "";
+
   if (!persons || persons.length === 0) {
     tableBody.innerHTML = `
-      <tr><td colspan="7" class="text-center text-gray-400 py-5 italic">
-        No hay registros disponibles.
-      </td></tr>`;
+      <tr>
+        <td colspan="7" class="px-4 py-6 text-center text-gray-400 italic">
+          No hay registros disponibles.
+        </td>
+      </tr>`;
     return;
   }
 
@@ -91,15 +92,37 @@ function renderTable(persons) {
     tableBody.insertAdjacentHTML(
       "beforeend",
       `
-      <tr class="border-b hover:bg-emerald-50 transition duration-150">
-        <td class="py-2 px-3">${i + 1}</td>
-        <td>${p.full_name ?? ""}</td>
-        <td>${p.dni ?? "-"}</td>
-        <td>${p.phone ?? "-"}</td>
-        <td>${p.address ?? "-"}</td>
-        <td>${p.role_name ?? "-"}</td>
-        <td>${formatDate(p.created_at)}</td>
-      </tr>
+        <tr class="hover:bg-emerald-50 transition">
+          
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${i + 1}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-700 font-medium">
+            ${p.full_name ?? "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${p.dni ?? "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${p.phone ?? "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${p.address ?? "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${p.role_name ?? "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-500">
+            ${formatDate(p.created_at)}
+          </td>
+
+        </tr>
       `
     );
   });
@@ -170,23 +193,7 @@ document.getElementById("logoutBtn").onclick = () => {
 document.getElementById("btnExportExcel")?.addEventListener("click", async () => {
   try {
     const res = await ExportAPI.getExportPerson();
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-
-    // Nombre del archivo (si viene en header)
-    const disposition = res.headers.get("Content-Disposition") || "";
-    const match = disposition.match(/filename="(.+)"/);
-    const fileName = match?.[1] || "reporte.xlsx";
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    window.URL.revokeObjectURL(url);
+    excelFormat(res, "Reporte de Personas");
   } catch (e) {
     console.error("❌ Error export:", e);
     alert("No se pudo descargar el Excel: " + e.message);

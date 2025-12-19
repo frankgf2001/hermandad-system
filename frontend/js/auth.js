@@ -33,7 +33,7 @@ async function handleLogin() {
   const password = passwordInput.value.trim();
 
   if (!username || !password) {
-    showAlert("Please fill in all fields.", "warning");
+    showAlert("Por favor, completa todos los campos.", "warning");
     return;
   }
 
@@ -49,16 +49,17 @@ async function handleLogin() {
 
     // Validar formato del token recibido
     if (!result.token || !/^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/.test(result.token)) {
-      throw new Error("Invalid token format.");
+      throw new Error("Formato de token inválido.");
     }
 
     saveSession(result.token, username);
-    showAlert("Login successful! Redirecting...", "success");
+    console.log("Frank_funcionaaaa")
+    showAlert("Inicio de sesión éxitoso!! Redireccionando...", "success");
 
     setTimeout(() => (window.location.href = "dashboard.html"), 800);
   } catch (error) {
     console.error("❌ Login error:", error);
-    showAlert("Login failed: " + (error.message || "Try again."), "error");
+    showAlert("Login failed: " + (error.message || "Intenta de nuevo."), "error");
   } finally {
     toggleFormState(false);
   }

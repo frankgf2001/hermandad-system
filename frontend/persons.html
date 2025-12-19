@@ -141,57 +141,59 @@
         </form>
       </section>
 
-      <!-- 🔸 Tabla -->
-      <section class="bg-white rounded-2xl shadow-md border border-gray-100 p-8 max-w-6xl mx-auto">
-        <!-- 🔹 Header -->
-        <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-6 py-5 border-b bg-gray-50">
+      <!-- 🔸 Tabla de personas -->
+      <section class="bg-white rounded-2xl p-8 shadow-md border border-gray-100 mb-2 max-w-5xl mx-auto">
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div>
-            <h3 class="text-lg font-semibold text-gray-800">Personas registradas</h3>
+            <h3 class="text-xl font-semibold text-gray-800">
+              Personas registradas
+            </h3>
             <p class="text-sm text-gray-500">
               Listado general de miembros registrados en el sistema
             </p>
           </div>
 
-          <div class="flex items-center gap-3">
-            <!-- (opcional) buscador futuro -->
-            <!--
-            <input
-              type="text"
-              placeholder="Buscar persona..."
-              class="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-            />
-            -->
+          <button
+            id="btnExportExcel"
+            class="inline-flex items-center gap-2 bg-emerald-600 text-white
+                  px-4 py-2 rounded-lg text-sm font-medium
+                  hover:bg-emerald-700 transition shadow-sm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3M4 6h16" />
+            </svg>
+            Exportar Excel
+          </button>
+        </div>
 
-            <button
-              id="btnExportExcel"
-              class="inline-flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-700 transition"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 10v6m0 0l-3-3m3 3l3-3M4 6h16" />
-              </svg>
-              Exportar Excel
-            </button>
-          </div>
-        </header>
-        
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="border-b bg-emerald-50 text-emerald-700 text-sm uppercase">
-                <th class="py-3 px-4">#</th>
-                <th class="px-4">Nombre completo</th>
-                <th class="px-4">DNI</th>
-                <th class="px-4">Teléfono</th>
-                <th class="px-4">Dirección</th>
-                <th class="px-4">Rol</th>
-                <th class="px-4">Fecha de registro</th>
+        <!-- Tabla -->
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-gray-50 text-gray-700 sticky top-0 z-10">
+              <tr>
+                <th class="px-4 py-3 text-center font-semibold">#</th>
+                <th class="px-4 py-3 text-center font-semibold">Nombre completo</th>
+                <th class="px-4 py-3 text-center font-semibold">DNI</th>
+                <th class="px-4 py-3 text-center font-semibold">Teléfono</th>
+                <th class="px-4 py-3 text-center font-semibold">Dirección</th>
+                <th class="px-4 py-3 text-center font-semibold">Rol</th>
+                <th class="px-4 py-3 text-center font-semibold">Fecha de registro</th>
               </tr>
             </thead>
-            <tbody id="personTable" class="text-gray-700 text-sm"></tbody>
+
+            <tbody
+              id="personTable"
+              class="divide-y divide-gray-100 text-gray-700"
+            >
+              <!-- filas dinámicas -->
+            </tbody>
           </table>
         </div>
+
       </section>
     </main>
 

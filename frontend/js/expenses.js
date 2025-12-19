@@ -1,9 +1,5 @@
-import {
-  API_BASE_URL,
-  getAuthHeaders,
-  handleResponse,
-  logoutIfUnauthorized,
-} from "./api.js";
+import { API_BASE_URL, getAuthHeaders, handleResponse, logoutIfUnauthorized, ExportAPI } from "./api.js";
+import { excelFormat } from "../utils/excelUtil.js"
 
 // ===============================
 // 🔹 Elementos del DOM
@@ -109,6 +105,19 @@ async function loadPersons() {
 }
 
 // ===============================
+// 🔹 Exportar archivo Excel
+// ===============================
+document.getElementById("btnExportExcel")?.addEventListener("click", async () => {
+  try {
+    const res = await ExportAPI.getExportExpense();
+    excelFormat(res, "Reporte de Egresos");
+  } catch (e) {
+    console.error("❌ Error export:", e);
+    alert("No se pudo descargar el Excel: " + e.message);
+  }
+});
+
+// ===============================
 // 🔹 Renderizar tabla
 // ===============================
 function renderExpenses(expenses = []) {
@@ -123,18 +132,37 @@ function renderExpenses(expenses = []) {
     .map(
       (exp, i) => `
         <tr class="hover:bg-red-50 transition">
-          <td class="py-2 px-3 text-gray-600">${i + 1}</td>
-          <td class="py-2 px-3">${exp.person_name}</td>
-          <td class="py-2 px-3 text-red-700 font-semibold">S/ ${formatNumber(exp.amount)}</td>
-          <td class="py-2 px-3 text-gray-600">${formatDate(exp.expense_date)}</td>
-          <td class="py-2 px-3 text-gray-600">${exp.expense_type || "-"}</td>
-          <td class="py-2 px-3 text-gray-500">${exp.description || "-"}</td>
+          
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${i + 1}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-700">
+            ${exp.person_name || "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle font-semibold text-red-600">
+            S/ ${formatNumber(exp.amount)}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${formatDate(exp.expense_date)}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${exp.expense_type || "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-500">
+            ${exp.description || "-"}
+          </td>
+
         </tr>
       `
     )
     .join("");
 
-  expenseTable.innerHTML = rows;
+  expenseTable.insertAdjacentHTML("beforeend", rows);
 }
 
 // ===============================
@@ -217,3 +245,4 @@ function formatDate(dateStr) {
     year: "numeric",
   });
 }
+

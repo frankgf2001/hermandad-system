@@ -27,7 +27,7 @@ window.loadReport = async function (type) {
   // Actualiza etiqueta del tipo de reporte
   currentTypeLabel.textContent = `Generando reporte ${reportNames[type] || ""}...`;
   showLoading(`Cargando reporte ${reportNames[type]}...`);
-
+  
   try {
     const res = await fetch(`${API_BASE_URL}/reports/${endpoint}`, {
       headers: getAuthHeaders(),

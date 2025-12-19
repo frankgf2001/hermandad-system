@@ -1,12 +1,8 @@
 // ======================================================
 // 🔹 Importaciones base
 // ======================================================
-import {
-  API_BASE_URL,
-  getAuthHeaders,
-  handleResponse,
-  logoutIfUnauthorized,
-} from "./api.js";
+import { API_BASE_URL, getAuthHeaders, handleResponse, logoutIfUnauthorized, ExportAPI} from "./api.js";
+import { excelFormat } from "../utils/excelUtil.js"
 
 // ======================================================
 // 🔹 Elementos del DOM
@@ -105,6 +101,20 @@ async function loadPersons() {
   }
 }
 
+// ===============================
+// 🔹 Exportar archivo Excel
+// ===============================
+document.getElementById("btnExportExcel")?.addEventListener("click", async () => {
+  try {
+    console.log("frank gf")
+    const res = await ExportAPI.getExportIncome();
+    excelFormat(res, "Reporte de Ingresos");
+  } catch (e) {
+    console.error("❌ Error export:", e);
+    alert("No se pudo descargar el Excel: " + e.message);
+  }
+});
+
 // ======================================================
 // 🔹 Renderizar tabla de ingresos
 // ======================================================
@@ -119,16 +129,36 @@ function renderIncomes(incomes = []) {
   const rows = incomes
     .map(
       (inc, index) => `
-      <tr class="border-b hover:bg-emerald-50 transition">
-        <td class="py-2 text-gray-700">${index + 1}</td>
-        <td class="text-gray-700">${inc.person_name || "-"}</td>
-        <td class="text-green-700 font-semibold">S/ ${formatNumber(inc.amount)}</td>
-        <td class="text-gray-600">${formatDate(inc.income_date)}</td>
-        <td class="text-gray-600">${inc.income_type || "-"}</td>
-        <td class="text-gray-600">${inc.reference || "-"}</td>
-        <td class="text-gray-500">${inc.notes || "-"}</td>
-      </tr>
-    `
+        <tr class="hover:bg-emerald-50 transition">
+          <td class="px-4 py-3 text-center align-middle text-gray-700">
+            ${index + 1}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-700">
+            ${inc.person_name || "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle font-semibold text-emerald-600">
+            S/ ${formatNumber(inc.amount)}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${formatDate(inc.income_date)}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${inc.income_type || "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-600">
+            ${inc.reference || "-"}
+          </td>
+
+          <td class="px-4 py-3 text-center align-middle text-gray-500">
+            ${inc.notes || "-"}
+          </td>
+        </tr>
+      `
     )
     .join("");
 

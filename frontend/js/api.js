@@ -131,5 +131,7 @@ export const RolesAPI = {
 // 🔹 EXPORT
 // ================================================
 export const ExportAPI = {
-  getExportPerson: () => requestExcel("/export/persons"), // Usa tu helper 'request' ya existente
+  getExportPerson: () => requestExcel("/export/persons"),
+  getExportExpense: () => requestExcel("/export/expenses"),
+  getExportIncome: () => requestExcel("/export/incomes"),
 };

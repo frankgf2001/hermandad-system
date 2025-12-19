@@ -12,7 +12,7 @@ export const login = async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
-    return res.status(400).json({ message: "Username and password are required" });
+    return res.status(400).json({ message: "Se requiere usuario y contraseña." });
   }
 
   try {
@@ -23,7 +23,7 @@ export const login = async (req, res) => {
     const result = rows[0]?.[0];
 
     if (!result) {
-      return res.status(401).json({ message: "Invalid username or password" });
+      return res.status(401).json({ message: "Usuario o contraseña inválida." });
     }
 
     // 🔑 Crear token JWT seguro
@@ -40,7 +40,7 @@ export const login = async (req, res) => {
     // 🧾 Respuesta profesional
     return res.json({
       success: true,
-      message: "Login successful",
+      message: "Has iniciado sesioón correctamente.",
       token,
       user: {
         id: result.user_id,
@@ -57,6 +57,6 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: error.sqlMessage });
     }
 
-    return res.status(500).json({ message: "Server error during login" });
+    return res.status(500).json({ message: "Ocurrió un error en el servidor." });
   }
 };
